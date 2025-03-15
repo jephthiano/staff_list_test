@@ -39,8 +39,25 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone');
             $table->text('address');
-            $table->uuid('company_category_id'); // ✅ Ensure it's a UUID
+            $table->uuid('company_category_id'); // Ensure it's a UUID
             $table->foreign('company_category_id')->references('id')->on('company_categories')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+
+        //for staffs
+        Schema::create('staff', function (Blueprint $table) {
+            $table->uuid('id')->primary(); // UUID primary key
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('phone')->unique();
+            $table->decimal('wallet', 10, 2)->default(0.00);
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamp('last_seen')->nullable();
+            $table->boolean('manage')->default(false);
+            $table->uuid('company_id'); // Foreign key to companies
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -53,5 +70,6 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('company_categories');
         Schema::dropIfExists('companies');
+        Schema::dropIfExists('staff');
     }
 };
