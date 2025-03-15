@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 // use App\Http\Resources\UserResource;
-use App\Http\Controllers\Controller;
 // use App\Services\UserService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -18,9 +19,12 @@ class AuthController extends Controller
 
     public function login()
     {
+        $user = User::first();
+        // dd($user);
         return response()->json([
+            'status' => true,
             'message' => 'Login successful',
-            'status' => 200
+            'data' => $user,
         ]);
     }
 

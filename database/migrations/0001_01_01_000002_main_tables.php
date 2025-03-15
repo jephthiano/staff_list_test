@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        //for user
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary(); // Use UUID as primary key
             $table->string('name');
             $table->string('email')->unique();
             $table->string('username')->unique();
@@ -20,6 +21,25 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->timestamps();
+        });
+
+        // for company_categories
+        Schema::create('company_categories', function (Blueprint $table) {
+            $table->uuid('id')->primary(); // Use UUID as primary key
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
+
+        //for company
+        Schema::create('companies', function (Blueprint $table) {
+            $table->uuid('id')->primary(); // Use UUID as primary key
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->text('address')->nullable();
+            $table->foreignUuid('company_category_id')->constrained()->onDelete('cascade'); // Foreign key
             $table->timestamps();
         });
     }
@@ -30,5 +50,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
+        Schema::dropIfExists('company_categories');
+        Schema::dropIfExists('companies');
     }
 };

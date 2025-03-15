@@ -15,5 +15,5 @@ Route::prefix('v1')->group(function () {
     //         'message' => 'Hello, world!',
     //         'status' => 200
     //     ]);
-    // });
+    // });  
 });

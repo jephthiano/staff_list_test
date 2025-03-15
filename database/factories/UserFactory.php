@@ -24,6 +24,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'id' => Str::uuid(), // Generate UUID manually
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'username' =>fake()->unique()->userName(),
