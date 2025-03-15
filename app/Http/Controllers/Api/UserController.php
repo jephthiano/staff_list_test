@@ -16,21 +16,21 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index()
-    {
-        return UserResource::collection(User::all());
-    }
+    // public function index()
+    // {
+    //     return UserResource::collection(User::all());
+    // }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-        ]);
+    // public function store(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'name' => 'required|string',
+    //         'email' => 'required|email|unique:users',
+    //         'password' => 'required|min:6',
+    //     ]);
 
-        $user = $this->userService->createUser($data);
-        return response()->json($user, 201);
-    }
+    //     $user = $this->userService->createUser($data);
+    //     return response()->json($user, 201);
+    // }
 }
 
