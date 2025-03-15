@@ -27,7 +27,7 @@ return new class extends Migration
         // for company_categories
         Schema::create('company_categories', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Use UUID as primary key
-            $table->string('name');
+            $table->string('name')->unique();
             $table->text('description')->nullable();
             $table->timestamps();
         });
@@ -35,7 +35,7 @@ return new class extends Migration
         //for company
         Schema::create('companies', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Use UUID as primary key
-            $table->string('name');
+            $table->string('name')->unique();
             $table->string('email')->unique();
             $table->string('phone')->nullable();
             $table->text('address')->nullable();

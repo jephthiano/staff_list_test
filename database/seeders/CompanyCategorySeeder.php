@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Models;
+namespace Database\Seeders;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\CompanyCategory;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
-class CompanyCategory extends Model
+class CompanyCategorySeeder extends Seeder
 {
-    use HasFactory;
-
-    protected $fillable = ['name', 'description'];
-
+    /**
+     * Seed the application's database.
+     */
     public function run(): void
     {
         $categoryName = ['pharmacy', 'manufacturer', 'hospital', 'clinic', 'insurance', 'other'];
