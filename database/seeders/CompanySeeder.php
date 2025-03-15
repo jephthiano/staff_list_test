@@ -25,7 +25,7 @@ class CompanySeeder extends Seeder
         }
 
         foreach ($categories as $category) {
-            Company::factory()->create([
+            Company::factory()->count(3)->create([
                 'company_category_id' => $category->id,
             ]);
         }
