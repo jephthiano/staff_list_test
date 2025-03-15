@@ -34,12 +34,13 @@ return new class extends Migration
 
         //for company
         Schema::create('companies', function (Blueprint $table) {
-            $table->uuid('id')->primary(); // Use UUID as primary key
-            $table->string('name')->unique();
+            $table->uuid('id')->primary();
+            $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
-            $table->text('address')->nullable();
-            $table->foreignUuid('company_category_id')->constrained()->onDelete('cascade'); // Foreign key
+            $table->string('phone');
+            $table->text('address');
+            $table->uuid('company_category_id'); // ✅ Ensure it's a UUID
+            $table->foreign('company_category_id')->references('id')->on('company_categories')->onDelete('cascade');
             $table->timestamps();
         });
     }
