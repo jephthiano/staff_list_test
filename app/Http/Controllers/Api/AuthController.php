@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-// use App\Http\Resources\UserResource;
-// use App\Services\UserService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -20,7 +18,16 @@ class AuthController extends Controller
     public function login()
     {
         $user = User::first();
-        // dd($user);
+        return response()->json([
+            'status' => true,
+            'message' => 'Login successful',
+            'data' => $user,
+        ]);
+    }
+
+    public function get()
+    {
+        $user = User::first();
         return response()->json([
             'status' => true,
             'message' => 'Login successful',
