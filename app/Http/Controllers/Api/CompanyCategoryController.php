@@ -25,6 +25,14 @@ class CompanyCategoryController extends Controller
     }
 
     /**
+     * Display the specified company category.
+     */
+    public function show(CompanyCategory $companyCategory)
+    {
+        return response()->json($this->companyCategoryService->getById($companyCategory));
+    }
+
+    /**
      * Store a newly created company category.
      */
     public function store(Request $request)
@@ -36,14 +44,6 @@ class CompanyCategoryController extends Controller
         $category = $this->companyCategoryService->create($data);
 
         return response()->json($category, 201);
-    }
-
-    /**
-     * Display the specified company category.
-     */
-    public function show(CompanyCategory $companyCategory)
-    {
-        return response()->json($this->companyCategoryService->getById($companyCategory));
     }
 
     /**
