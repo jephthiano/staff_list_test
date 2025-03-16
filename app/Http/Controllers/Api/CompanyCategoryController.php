@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\CompanyCategory;
 use Illuminate\Http\Request;
 use App\Services\CompanyCategoryService;
 
-class CompanyCategoryController extends Controller
+class CompanyCategoryController extends BaseController
 {
     protected $companyCategoryService;
 
@@ -17,11 +16,29 @@ class CompanyCategoryController extends Controller
     }
 
     /**
-     * Display a listing of company categories.
+     * List all company categories.
      */
     public function index()
     {
-        return response()->json($this->companyCategoryService->getAll());
+        try {
+            $categories = $this->companyCategoryService->getAll();
+            return $this->sendResponse('Companies retrieved successfully', $categories);
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Show a single company category.
+     */
+    public function show(CompanyCategory $companyCategory)
+    {
+        try {
+            $categoryData = $this->companyCategoryService->getById($companyCategory);
+            return $this->sendResponse('Category retrieved successfully', $categoryData);
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     /**
@@ -29,44 +46,49 @@ class CompanyCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|unique:company_categories,name',
-        ]);
+        try {
+            $data = $request->validate([
+                'name' => 'required|string|unique:company_categories,name',
+            ]);
 
-        $category = $this->companyCategoryService->create($data);
+            $category = $this->companyCategoryService->create($data);
 
-        return response()->json($category, 201);
+            return $this->sendResponse('Categories created successfully', $category, true, [], 201);
+
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     /**
-     * Display the specified company category.
-     */
-    public function show(CompanyCategory $companyCategory)
-    {
-        return response()->json($this->companyCategoryService->getById($companyCategory));
-    }
-
-    /**
-     * Update the specified company category.
+     * Update an existing company category.
      */
     public function update(Request $request, CompanyCategory $companyCategory)
     {
-        $data = $request->validate([
-            'name' => 'sometimes|string|unique:company_categories,name,' . $companyCategory->id,
-        ]);
+        try {
+            $data = $request->validate([
+                'name' => 'sometimes|string|unique:company_categories,name,' . $companyCategory->id,
+            ]);
 
-        $updatedCategory = $this->companyCategoryService->update($companyCategory, $data);
+            $updatedCategory = $this->companyCategoryService->update($companyCategory, $data);
 
-        return response()->json($updatedCategory);
+            return $this->sendResponse('Category updated successfully', $updatedCategory);
+
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     /**
-     * Remove the specified company category.
+     * Delete a company category.
      */
     public function destroy(CompanyCategory $companyCategory)
     {
-        $this->companyCategoryService->delete($companyCategory);
-
-        return response()->json(['message' => 'Company category deleted successfully.']);
+        try {
+            $this->companyCategoryService->delete($companyCategory);
+            return $this->sendResponse([], 'Company category deleted successfully');
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
 }

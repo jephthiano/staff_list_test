@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\Api\CompanyController;
 
 Route::prefix('companies')->group(function () {
     Route::get('/', [CompanyController::class, 'index']);

@@ -1,39 +1,33 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use App\Services\CompanyService;
+use Exception;
 use Illuminate\Support\Str;
 
-class CompanyController extends Controller
+class CompanyController extends BaseController
 {
+    protected $companyService;
+
+    public function __construct(CompanyService $companyService)
+    {
+        $this->companyService = $companyService;
+    }
+
     /**
      * Display a listing of the companies.
      */
     public function index()
     {
-        return response()->json(Company::with('category', 'staff')->get());
-    }
-
-    /**
-     * Store a newly created company in the database.
-     */
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'nullable|email|unique:companies,email',
-            'phone' => 'nullable|string|unique:companies,phone',
-            'address' => 'nullable|string',
-            'company_category_id' => 'required|exists:company_categories,id',
-        ]);
-
-        $data['id'] = Str::uuid(); // Generate a UUID for the ID
-
-        $company = Company::create($data);
-
-        return response()->json($company, 201);
+        try {
+            $companies = $this->companyService->getAll();
+            return $this->sendResponse('Companies retrieved successfully', $companies);
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     /**
@@ -41,7 +35,35 @@ class CompanyController extends Controller
      */
     public function show(Company $company)
     {
-        return response()->json($company->load('category', 'staff'));
+        try {
+            $companyData = $this->companyService->getById($company);
+            return $this->sendResponse('Company retrieved successfully', $companyData);
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Store a newly created company in the database.
+     */
+    public function store(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'name' => 'required|string',
+                'email' => 'nullable|email|unique:companies,email',
+                'phone' => 'nullable|string|unique:companies,phone',
+                'address' => 'nullable|string',
+                'company_category_id' => 'required|exists:company_categories,id',
+            ]);
+
+            $data['id'] = Str::uuid();
+            $company = $this->companyService->create($data);
+
+            return $this->sendResponse('Company created successfully', $company, true, [], 201);
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     /**
@@ -49,26 +71,33 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
-        $data = $request->validate([
-            'name' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:companies,email,' . $company->id,
-            'phone' => 'sometimes|string|unique:companies,phone,' . $company->id,
-            'address' => 'sometimes|string',
-            'company_category_id' => 'sometimes|exists:company_categories,id',
-        ]);
+        try {
+            $data = $request->validate([
+                'name' => 'sometimes|string',
+                'email' => 'sometimes|nullable|email|unique:companies,email,' . $company->id,
+                'phone' => 'sometimes|nullable|string|unique:companies,phone,' . $company->id,
+                'address' => 'sometimes|string|nullable',
+                'company_category_id' => 'sometimes|exists:company_categories,id',
+            ]);
 
-        $company->update($data);
+            $updatedCompany = $this->companyService->update($company, $data);
 
-        return response()->json($company);
+            return $this->sendResponse('Company updated successfully', $updatedCompany);
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
-
+    
     /**
      * Remove the specified company from the database.
      */
     public function destroy(Company $company)
     {
-        $company->delete();
-
-        return response()->json(['message' => 'Company deleted successfully.']);
+        try {
+            $this->companyService->delete($company);
+            return $this->sendResponse([], 'Company deleted successfully');
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
 }

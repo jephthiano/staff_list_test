@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
 use App\Models\Staff;
 use Illuminate\Http\Request;
 use App\Services\StaffService;
 
-class StaffController extends Controller
+class StaffController extends BaseController
 {
     protected $staffService;
 
@@ -21,7 +21,15 @@ class StaffController extends Controller
      */
     public function index()
     {
-        return response()->json($this->staffService->getAll());
+        return $this->sendResponse($this->staffService->getAll(), 'Staff retrieved successfully.');
+    }
+
+    /**
+     * Display the specified staff member.
+     */
+    public function show(Staff $staff)
+    {
+        return $this->sendResponse($this->staffService->getById($staff), 'Staff retrieved successfully.');
     }
 
     /**
@@ -33,24 +41,12 @@ class StaffController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:staff,email',
             'phone' => 'required|string|unique:staff,phone',
-            'wallet' => 'nullable|numeric|min:0',
-            'status' => 'nullable|boolean',
-            'last_seen' => 'nullable|date',
-            'manage' => 'nullable|boolean',
             'company_id' => 'required|exists:companies,id',
         ]);
 
         $staff = $this->staffService->create($data);
 
-        return response()->json($staff, 201);
-    }
-
-    /**
-     * Display the specified staff member.
-     */
-    public function show(Staff $staff)
-    {
-        return response()->json($this->staffService->getById($staff));
+        return $this->sendResponse($staff, 'Staff created successfully.', true, [], 201);
     }
 
     /**
@@ -62,16 +58,12 @@ class StaffController extends Controller
             'name' => 'sometimes|string',
             'email' => 'sometimes|email|unique:staff,email,' . $staff->id,
             'phone' => 'sometimes|string|unique:staff,phone,' . $staff->id,
-            'wallet' => 'sometimes|numeric|min:0',
-            'status' => 'sometimes|boolean',
-            'last_seen' => 'sometimes|date',
-            'manage' => 'sometimes|boolean',
             'company_id' => 'sometimes|exists:companies,id',
         ]);
 
         $updatedStaff = $this->staffService->update($staff, $data);
 
-        return response()->json($updatedStaff);
+        return $this->sendResponse($updatedStaff, 'Staff updated successfully.');
     }
 
     /**
@@ -81,6 +73,6 @@ class StaffController extends Controller
     {
         $this->staffService->delete($staff);
 
-        return response()->json(['message' => 'Staff member deleted successfully.']);
+        return $this->sendResponse([], 'Staff member deleted successfully.');
     }
 }

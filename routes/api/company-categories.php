@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\CompanyCategoryController;
+use App\Http\Controllers\Api\CompanyCategoryController;
 
 Route::prefix('company-categories')->group(function () {
     Route::get('/', [CompanyCategoryController::class, 'index']);
