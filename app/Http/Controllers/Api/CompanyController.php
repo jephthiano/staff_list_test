@@ -111,7 +111,7 @@ class CompanyController extends BaseController
             return $this->handleException($e);
         }
     }
-
+    
     /**
      * Remove the specified company from the database.
      */
