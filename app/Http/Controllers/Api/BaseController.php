@@ -11,6 +11,16 @@ use Exception;
 
 class BaseController extends Controller
 {
+    protected function sendResponse($message, $data = [], $status = true, $statusCode = 200): JsonResponse
+    {
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'response_data' => $data,
+            'error_data' => [],
+        ], $statusCode);
+    }
+
     protected function handleException(Exception $e): JsonResponse
     {
         if (env('APP_ENV') === 'local' || env('APP_ENV') === 'development') {
