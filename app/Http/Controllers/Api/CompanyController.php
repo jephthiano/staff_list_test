@@ -2,143 +2,102 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Staff;
+use App\Models\Company;
 use Illuminate\Http\Request;
-use App\Services\StaffService;
-use App\Exceptions\CustomApiException;
+use App\Services\CompanyService;
 use Exception;
 use Illuminate\Support\Str;
 
-class StaffController extends BaseController
+class CompanyController extends BaseController
 {
-    protected $staffService;
+    protected $companyService;
 
-    public function __construct(StaffService $staffService)
+    public function __construct(CompanyService $companyService)
     {
-        $this->staffService = $staffService;
+        $this->companyService = $companyService;
     }
 
     /**
-     * Display a listing of staff members.
+     * Display a listing of the companies.
      */
     public function index()
     {
         try {
-            $staff = $this->staffService->getAll();
-            return response()->json([
-                'status' => true,
-                'message' => 'Staff members retrieved successfully',
-                'response_data' => $staff,
-                'error_data' => [],
-            ], 200);
+            $companies = $this->companyService->getAll();
+            return $this->sendResponse('Companies retrieved successfully', $companies);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
 
     /**
-     * Display the specified staff member.
+     * Display the specified company.
      */
-    public function show(Staff $staff)
+    public function show(Company $company)
     {
         try {
-            $staffData = $this->staffService->getById($staff);
-            return response()->json([
-                'status' => true,
-                'message' => 'Staff member retrieved successfully',
-                'response_data' => $staffData,
-                'error_data' => [],
-            ], 200);
+            $companyData = $this->companyService->getById($company);
+            return $this->sendResponse('Company retrieved successfully', $companyData);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
 
     /**
-     * Store a newly created staff member.
+     * Store a newly created company in the database.
      */
     public function store(Request $request)
     {
         try {
             $data = $request->validate([
                 'name' => 'required|string',
-                'email' => 'required|email|unique:staff,email',
-                'phone' => 'required|string|unique:staff,phone',
-                'wallet' => 'nullable|numeric|min:0',
-                'status' => 'nullable|boolean',
-                'last_seen' => 'nullable|date',
-                'manage' => 'nullable|boolean',
-                'company_id' => 'required|exists:companies,id',
+                'email' => 'nullable|email|unique:companies,email',
+                'phone' => 'nullable|string|unique:companies,phone',
+                'address' => 'nullable|string',
+                'company_category_id' => 'required|exists:company_categories,id',
             ]);
 
-            $data['id'] = Str::uuid(); // Generate a UUID for the ID
+            $data['id'] = Str::uuid();
+            $company = $this->companyService->create($data);
 
-            $staff = $this->staffService->create($data);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Staff member created successfully',
-                'response_data' => $staff,
-                'error_data' => [],
-            ], 201);
+            return $this->sendResponse('Company created successfully', $company, true, 201);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
 
     /**
-     * Update the specified staff member.
+     * Update the specified company in the database.
      */
-    public function update(Request $request, Staff $staff)
+    public function update(Request $request, Company $company)
     {
         try {
             $data = $request->validate([
                 'name' => 'sometimes|string',
-                'email' => 'sometimes|email|unique:staff,email,' . $staff->id,
-                'phone' => 'sometimes|string|unique:staff,phone,' . $staff->id,
-                'wallet' => 'sometimes|numeric|min:0',
-                'status' => 'sometimes|boolean',
-                'last_seen' => 'sometimes|date',
-                'manage' => 'sometimes|boolean',
-                'company_id' => 'sometimes|exists:companies,id',
+                'email' => 'sometimes|nullable|email|unique:companies,email,' . $company->id,
+                'phone' => 'sometimes|nullable|string|unique:companies,phone,' . $company->id,
+                'address' => 'sometimes|string|nullable',
+                'company_category_id' => 'sometimes|exists:company_categories,id',
             ]);
 
-            $updatedStaff = $this->staffService->update($staff, $data);
+            $updatedCompany = $this->companyService->update($company, $data);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Staff member updated successfully',
-                'response_data' => $updatedStaff,
-                'error_data' => [],
-            ], 200);
+            return $this->sendResponse('Company updated successfully', $updatedCompany);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
-
+    
     /**
-     * Remove the specified staff member.
+     * Remove the specified company from the database.
      */
-    public function destroy(Staff $staff)
+    public function destroy(Company $company)
     {
         try {
-            $this->staffService->delete($staff);
-            return response()->json([
-                'status' => true,
-                'message' => 'Staff member deleted successfully',
-                'response_data' => [],
-                'error_data' => [],
-            ], 200);
+            $this->companyService->delete($company);
+            return $this->sendResponse('Company deleted successfully');
         } catch (Exception $e) {
             return $this->handleException($e);
         }
-    }
-
-    /**
-     * Manually trigger an error.
-     */
-    public function triggerError($message, $details = [])
-    {
-        throw new CustomApiException($message, 403, $details);
     }
 }

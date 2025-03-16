@@ -41,10 +41,6 @@ class StaffController extends BaseController
             'name' => 'required|string',
             'email' => 'required|email|unique:staff,email',
             'phone' => 'required|string|unique:staff,phone',
-            'wallet' => 'nullable|numeric|min:0',
-            'status' => 'nullable|boolean',
-            'last_seen' => 'nullable|date',
-            'manage' => 'nullable|boolean',
             'company_id' => 'required|exists:companies,id',
         ]);
 
@@ -62,10 +58,6 @@ class StaffController extends BaseController
             'name' => 'sometimes|string',
             'email' => 'sometimes|email|unique:staff,email,' . $staff->id,
             'phone' => 'sometimes|string|unique:staff,phone,' . $staff->id,
-            'wallet' => 'sometimes|numeric|min:0',
-            'status' => 'sometimes|boolean',
-            'last_seen' => 'sometimes|date',
-            'manage' => 'sometimes|boolean',
             'company_id' => 'sometimes|exists:companies,id',
         ]);
 

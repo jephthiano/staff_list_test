@@ -11,7 +11,7 @@ use Exception;
 
 class BaseController extends Controller
 {
-    protected function sendResponse($message, $data = [], $status = true, $statusCode = 200): JsonResponse
+    protected function sendResponse($data = [], $message, $status = true, $error = [], $statusCode = 200): JsonResponse
     {
         return response()->json([
             'status' => $status,
@@ -23,45 +23,21 @@ class BaseController extends Controller
 
     protected function handleException(Exception $e): JsonResponse
     {
-        if (env('APP_ENV') === 'local' || env('APP_ENV') === 'development') {
-            $errorData = ['error' => $e->getMessage()];
-        }else{
-            $errorData = [];
-        }
-        
-        
         if ($e instanceof ValidationException) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation failed',
-                'response_data' => [],
-                'error_data' => $e->errors()
-            ], 422);
+            $this->sendResponse([], 'Validation failed', false, $e->errors(), 422);
         }
 
         if ($e instanceof QueryException) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Database error occurred',
-                'response_data' => [],
-                'error_data' => $errorData
-            ], 500);
+            $errorData = (env('APP_ENV') === 'local' || env('APP_ENV') === 'development') ? ['error' => $e->getMessage()] : [];
+            $this->sendResponse([], 'Database error occurred', false, $errorData, 500);
         }
 
         if ($e instanceof CustomApiException) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(), // Use the message from the custom exception
-                'response_data' => [],
-                'error_data' => $e->getErrorData() ?? []
-            ], $e->getStatus());
+            $error = $e->getErrorData() ?? [];
+            $this->sendResponse([], $e->getMessage(), false, $error, $e->getStatus());
         }
 
-        return response()->json([
-            'status' => false,
-            'message' => 'Something went wrong',
-            'response_data' => [],
-            'error_data' => $errorData,
-        ], 500);
+        $errorData = (env('APP_ENV') === 'local' || env('APP_ENV') === 'development') ? ['error' => $e->getMessage()] : [];
+        return $this->sendResponse([], 'Something went wrong', false, $errorData, 500);
     }
 }
