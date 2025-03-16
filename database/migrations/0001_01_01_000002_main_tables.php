@@ -36,9 +36,9 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('phone');
-            $table->text('address');
+            $table->string('email')->unique()->nullable();
+            $table->string('phone')->nullable()->nullable();
+            $table->text('address')->nullable();;
             $table->uuid('company_category_id'); // Ensure it's a UUID
             $table->foreign('company_category_id')->references('id')->on('company_categories')->onDelete('cascade');
             $table->timestamps();

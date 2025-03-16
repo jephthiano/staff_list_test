@@ -9,7 +9,7 @@ use App\Exceptions\CustomApiException;
 use Exception;
 use Illuminate\Support\Str;
 
-class AuthController extends BaseController
+class CompanyController extends BaseController
 {
     protected $companyService;
 
@@ -25,10 +25,30 @@ class AuthController extends BaseController
     {
         try {
             $companies = $this->companyService->getAll();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Companies retrieved successfully',
                 'response_data' => $companies,
+                'error_data' => [],
+            ], 200);
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Display the specified company.
+     */
+    public function show(Company $company)
+    {
+        try {
+            $companyData = $this->companyService->getById($company);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Company retrieved successfully',
+                'response_data' => $companyData,
                 'error_data' => [],
             ], 200);
         } catch (Exception $e) {
@@ -50,7 +70,8 @@ class AuthController extends BaseController
                 'company_category_id' => 'required|exists:company_categories,id',
             ]);
 
-            $data['id'] = Str::uuid();
+            $data['id'] = Str::uuid(); // Generate a UUID for the ID
+
             $company = $this->companyService->create($data);
 
             return response()->json([
@@ -65,24 +86,6 @@ class AuthController extends BaseController
     }
 
     /**
-     * Display the specified company.
-     */
-    public function show(Company $company)
-    {
-        try {
-            $companyData = $this->companyService->getById($company);
-            return response()->json([
-                'status' => true,
-                'message' => 'Company retrieved successfully',
-                'response_data' => $companyData,
-                'error_data' => [],
-            ], 200);
-        } catch (Exception $e) {
-            return $this->handleException($e);
-        }
-    }
-
-    /**
      * Update the specified company in the database.
      */
     public function update(Request $request, Company $company)
@@ -90,9 +93,9 @@ class AuthController extends BaseController
         try {
             $data = $request->validate([
                 'name' => 'sometimes|string',
-                'email' => 'sometimes|email|unique:companies,email,' . $company->id,
-                'phone' => 'sometimes|string|unique:companies,phone,' . $company->id,
-                'address' => 'sometimes|string',
+                'email' => 'sometimes|nullable|email|unique:companies,email,' . $company->id,
+                'phone' => 'sometimes|nullable|string|unique:companies,phone,' . $company->id,
+                'address' => 'sometimes|string|nullable',
                 'company_category_id' => 'sometimes|exists:company_categories,id',
             ]);
 
@@ -116,6 +119,7 @@ class AuthController extends BaseController
     {
         try {
             $this->companyService->delete($company);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Company deleted successfully',
