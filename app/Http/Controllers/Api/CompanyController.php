@@ -2,34 +2,33 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Company;
+use App\Models\Staff;
 use Illuminate\Http\Request;
-use App\Services\CompanyService;
+use App\Services\StaffService;
 use App\Exceptions\CustomApiException;
 use Exception;
 use Illuminate\Support\Str;
 
-class CompanyController extends BaseController
+class StaffController extends BaseController
 {
-    protected $companyService;
+    protected $staffService;
 
-    public function __construct(CompanyService $companyService)
+    public function __construct(StaffService $staffService)
     {
-        $this->companyService = $companyService;
+        $this->staffService = $staffService;
     }
 
     /**
-     * Display a listing of the companies.
+     * Display a listing of staff members.
      */
     public function index()
     {
         try {
-            $companies = $this->companyService->getAll();
-
+            $staff = $this->staffService->getAll();
             return response()->json([
                 'status' => true,
-                'message' => 'Companies retrieved successfully',
-                'response_data' => $companies,
+                'message' => 'Staff members retrieved successfully',
+                'response_data' => $staff,
                 'error_data' => [],
             ], 200);
         } catch (Exception $e) {
@@ -38,17 +37,16 @@ class CompanyController extends BaseController
     }
 
     /**
-     * Display the specified company.
+     * Display the specified staff member.
      */
-    public function show(Company $company)
+    public function show(Staff $staff)
     {
         try {
-            $companyData = $this->companyService->getById($company);
-
+            $staffData = $this->staffService->getById($staff);
             return response()->json([
                 'status' => true,
-                'message' => 'Company retrieved successfully',
-                'response_data' => $companyData,
+                'message' => 'Staff member retrieved successfully',
+                'response_data' => $staffData,
                 'error_data' => [],
             ], 200);
         } catch (Exception $e) {
@@ -57,27 +55,30 @@ class CompanyController extends BaseController
     }
 
     /**
-     * Store a newly created company in the database.
+     * Store a newly created staff member.
      */
     public function store(Request $request)
     {
         try {
             $data = $request->validate([
                 'name' => 'required|string',
-                'email' => 'nullable|email|unique:companies,email',
-                'phone' => 'nullable|string|unique:companies,phone',
-                'address' => 'nullable|string',
-                'company_category_id' => 'required|exists:company_categories,id',
+                'email' => 'required|email|unique:staff,email',
+                'phone' => 'required|string|unique:staff,phone',
+                'wallet' => 'nullable|numeric|min:0',
+                'status' => 'nullable|boolean',
+                'last_seen' => 'nullable|date',
+                'manage' => 'nullable|boolean',
+                'company_id' => 'required|exists:companies,id',
             ]);
 
             $data['id'] = Str::uuid(); // Generate a UUID for the ID
 
-            $company = $this->companyService->create($data);
+            $staff = $this->staffService->create($data);
 
             return response()->json([
                 'status' => true,
-                'message' => 'Company created successfully',
-                'response_data' => $company,
+                'message' => 'Staff member created successfully',
+                'response_data' => $staff,
                 'error_data' => [],
             ], 201);
         } catch (Exception $e) {
@@ -86,43 +87,45 @@ class CompanyController extends BaseController
     }
 
     /**
-     * Update the specified company in the database.
+     * Update the specified staff member.
      */
-    public function update(Request $request, Company $company)
+    public function update(Request $request, Staff $staff)
     {
         try {
             $data = $request->validate([
                 'name' => 'sometimes|string',
-                'email' => 'sometimes|nullable|email|unique:companies,email,' . $company->id,
-                'phone' => 'sometimes|nullable|string|unique:companies,phone,' . $company->id,
-                'address' => 'sometimes|string|nullable',
-                'company_category_id' => 'sometimes|exists:company_categories,id',
+                'email' => 'sometimes|email|unique:staff,email,' . $staff->id,
+                'phone' => 'sometimes|string|unique:staff,phone,' . $staff->id,
+                'wallet' => 'sometimes|numeric|min:0',
+                'status' => 'sometimes|boolean',
+                'last_seen' => 'sometimes|date',
+                'manage' => 'sometimes|boolean',
+                'company_id' => 'sometimes|exists:companies,id',
             ]);
 
-            $updatedCompany = $this->companyService->update($company, $data);
+            $updatedStaff = $this->staffService->update($staff, $data);
 
             return response()->json([
                 'status' => true,
-                'message' => 'Company updated successfully',
-                'response_data' => $updatedCompany,
+                'message' => 'Staff member updated successfully',
+                'response_data' => $updatedStaff,
                 'error_data' => [],
             ], 200);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
-    
+
     /**
-     * Remove the specified company from the database.
+     * Remove the specified staff member.
      */
-    public function destroy(Company $company)
+    public function destroy(Staff $staff)
     {
         try {
-            $this->companyService->delete($company);
-
+            $this->staffService->delete($staff);
             return response()->json([
                 'status' => true,
-                'message' => 'Company deleted successfully',
+                'message' => 'Staff member deleted successfully',
                 'response_data' => [],
                 'error_data' => [],
             ], 200);
