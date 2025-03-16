@@ -63,8 +63,6 @@ class CompanyCategoryController extends BaseController
     public function store(Request $request)
     {
         try {
-
-            $this->triggerError('try error');
             $data = $request->validate([
                 'name' => 'required|string|unique:company_categories,name',
             ]);
@@ -90,7 +88,7 @@ class CompanyCategoryController extends BaseController
     {
         try {
             $data = $request->validate([
-                'name' => 'sometimes|string|unique:company_categories,name,' . $companyCategory->id,
+                'name' => 'required|string|unique:company_categories,name,' . $companyCategory->id,
             ]);
 
             $updatedCategory = $this->companyCategoryService->update($companyCategory, $data);
