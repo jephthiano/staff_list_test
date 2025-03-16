@@ -46,7 +46,7 @@ class StaffController extends BaseController
 
         $staff = $this->staffService->create($data);
 
-        return $this->sendResponse($staff, 'Staff created successfully.', 201);
+        return $this->sendResponse($staff, 'Staff created successfully.', true, [], 201);
     }
 
     /**

@@ -17,27 +17,36 @@ class BaseController extends Controller
             'status' => $status,
             'message' => $message,
             'response_data' => $data,
-            'error_data' => [],
+            'error_data' => $error,
         ], $statusCode);
     }
 
     protected function handleException(Exception $e): JsonResponse
     {
         if ($e instanceof ValidationException) {
-            $this->sendResponse([], 'Validation failed', false, $e->errors(), 422);
+            return $this->sendResponse([], 'Validation failed', false, $e->errors(), 422);
         }
 
         if ($e instanceof QueryException) {
             $errorData = (env('APP_ENV') === 'local' || env('APP_ENV') === 'development') ? ['error' => $e->getMessage()] : [];
-            $this->sendResponse([], 'Database error occurred', false, $errorData, 500);
+            return $this->sendResponse([], 'Database error occurred', false, $errorData, 500);
         }
 
         if ($e instanceof CustomApiException) {
             $error = $e->getErrorData() ?? [];
-            $this->sendResponse([], $e->getMessage(), false, $error, $e->getStatus());
+            return $this->sendResponse([], $e->getMessage(), false, $error, $e->getStatus());
         }
 
         $errorData = (env('APP_ENV') === 'local' || env('APP_ENV') === 'development') ? ['error' => $e->getMessage()] : [];
         return $this->sendResponse([], 'Something went wrong', false, $errorData, 500);
     }
+
+    /**
+     * Manually trigger an error.
+     */
+
+     public function triggerError($message, $details = [])
+     {
+         throw new CustomApiException($message, 403, $details);
+     }
 }

@@ -60,7 +60,7 @@ class CompanyController extends BaseController
             $data['id'] = Str::uuid();
             $company = $this->companyService->create($data);
 
-            return $this->sendResponse('Company created successfully', $company, true, 201);
+            return $this->sendResponse('Company created successfully', $company, true, [], 201);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
@@ -95,7 +95,7 @@ class CompanyController extends BaseController
     {
         try {
             $this->companyService->delete($company);
-            return $this->sendResponse('Company deleted successfully');
+            return $this->sendResponse([], 'Company deleted successfully');
         } catch (Exception $e) {
             return $this->handleException($e);
         }

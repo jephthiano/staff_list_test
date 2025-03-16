@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Models\CompanyCategory;
 use Illuminate\Http\Request;
 use App\Services\CompanyCategoryService;
-use App\Exceptions\CustomApiException;
-use Exception;
 
 class CompanyCategoryController extends BaseController
 {
@@ -24,14 +22,7 @@ class CompanyCategoryController extends BaseController
     {
         try {
             $categories = $this->companyCategoryService->getAll();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Categories retrieved successfully',
-                'response_data' => $categories,
-                'error_data' => [],
-            ], 200);
-
+            return $this->sendResponse('Companies retrieved successfully', $categories);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
@@ -43,15 +34,8 @@ class CompanyCategoryController extends BaseController
     public function show(CompanyCategory $companyCategory)
     {
         try {
-            $category = $this->companyCategoryService->getById($companyCategory);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Category retrieved successfully',
-                'response_data' => $category,
-                'error_data' => [],
-            ], 200);
-
+            $categoryData = $this->companyCategoryService->getById($companyCategory);
+            return $this->sendResponse('Category retrieved successfully', $categoryData);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
@@ -69,12 +53,7 @@ class CompanyCategoryController extends BaseController
 
             $category = $this->companyCategoryService->create($data);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Category created successfully',
-                'response_data' => $category,
-                'error_data' => [],
-            ], 201);
+            return $this->sendResponse('Categories created successfully', $category, true, [], 201);
 
         } catch (Exception $e) {
             return $this->handleException($e);
@@ -93,12 +72,7 @@ class CompanyCategoryController extends BaseController
 
             $updatedCategory = $this->companyCategoryService->update($companyCategory, $data);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Category updated successfully',
-                'response_data' => $updatedCategory,
-                'error_data' => [],
-            ], 200);
+            return $this->sendResponse('Category updated successfully', $updatedCategory);
 
         } catch (Exception $e) {
             return $this->handleException($e);
@@ -112,25 +86,9 @@ class CompanyCategoryController extends BaseController
     {
         try {
             $this->companyCategoryService->delete($companyCategory);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Company category deleted successfully',
-                'response_data' => [],
-                'error_data' => [],
-            ], 200);
-
+            return $this->sendResponse([], 'Company category deleted successfully');
         } catch (Exception $e) {
             return $this->handleException($e);
         }
-    }
-
-    /**
-     * Manually trigger an error.
-     */
-
-    public function triggerError($message, $details = [])
-    {
-        throw new CustomApiException($message, 403, $details);
     }
 }
